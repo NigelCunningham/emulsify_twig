@@ -3,6 +3,7 @@
 namespace Drupal\emulsify_twig;
 
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Template\AttributeArray;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -79,7 +80,12 @@ class AddAttributesTwigExtension extends AbstractExtension {
         // Merge additional attribute values with existing ones.
         if ($context['attributes']->offsetExists($key)) {
           $existing_attribute = $context['attributes']->offsetGet($key)->value();
-          $value = array_merge($existing_attribute, $value);
+          if (is_array($existing_attribute)) {
+            if ($value instanceof AttributeArray) {
+              $value = $value->value();
+            }
+            $value = array_unique(array_merge($existing_attribute, $value));
+          }
         }
         $context['attributes']->setAttribute($key, $value);
       }
